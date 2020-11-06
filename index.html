@@ -44,6 +44,8 @@
         <input type="text" placeholder="Punto B" id="puntob"/>
         <br>
         <input type="button" value="Agregar punto" class="add" id="add" />
+		<br>
+        <input type="checkbox" id="optimize">Optimizar ruta</input>
       </div>
       <input type="submit" value="Calcular ruta" onclick="calculateAndDisplayRoute()"></input>
   </body>
@@ -93,9 +95,10 @@ function calculateAndDisplayRoute() {
     });
     var pointa = document.getElementById("puntoa").value;
     var pointb = document.getElementById("puntob").value;
+	var optimize = document.getElementById("optimize").checked;
   directionsService.route({
     origin: pointa,
-    optimizeWaypoints: true,
+    optimizeWaypoints: optimize,
     destination: pointb,
     travelMode: google.maps.TravelMode.DRIVING,
     waypoints: [
