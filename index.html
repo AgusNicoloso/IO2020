@@ -13,55 +13,13 @@
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&callback=initMap&libraries=&v=weekly"
     defer></script>
-  <style type="text/css">
-    @import url(https://fonts.googleapis.com/css?family=Open+Sans);
-
-    body {
-      font-family: 'Open Sans', serif;
-    }
-
-    #map {
-      height: 100%;
-      width: 100%;
-    }
-
-    ul.timeline {
-      list-style-type: none;
-      position: relative;
-    }
-
-    ul.timeline:before {
-      content: ' ';
-      background: #d4d9df;
-      display: inline-block;
-      position: absolute;
-      left: 29px;
-      width: 2px;
-      height: 100%;
-      z-index: 400;
-    }
-
-    ul.timeline>li {
-      margin: 20px 0;
-      padding-left: 20px;
-    }
-
-    ul.timeline>li:before {
-      content: ' ';
-      background: white;
-      display: inline-block;
-      position: absolute;
-      border-radius: 50%;
-      border: 3px solid #22c0e8;
-      left: 20px;
-      width: 20px;
-      height: 20px;
-      z-index: 400;
-    }
-  </style>
+  <script src="https://kit.fontawesome.com/a3ba409d6b.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
+  <nav class="navbar navbar-info mb-3" style="background-color: #2c3e50;">
+    <span class="navbar-brand mb-0 h1 text-white"><i class="fas fa-map-marker-alt"></i> TP - Camino Económico </span>
+  </nav>
   <div class="container-fluid">
     <div class="row" style="height: 100vh;">
       <div class="col-xl-8">
@@ -70,27 +28,35 @@
       <div class="col-xl-4">
         <div id="formulario">
           <input type="text" style="margin-top: 10px;" class="form-control" placeholder="Origen" id="puntoa"
-            value="Mar del plata, ba" />
+            value="Mar del plata, ba" required />
           <div id="botonesdinamicos"></div>
           <input type="text" style="margin-top: 10px;" class="form-control" placeholder="Destino" id="puntob"
-            value="Buenos aires, ba" />
+            value="Buenos aires, ba" required />
           <div class="switch-button row">
-            <p class="col-sm">Optimizar ruta</p>
             <div class="col-sm">
-              <input type="checkbox" name="switch-button" id="switch-label" class="switch-button__checkbox" /> <label
-              for="switch-label" class="switch-button__label"></label>
+
+              <li class="list-group-item mb-2" style="margin-top: 10px;border-radius: 0.4pc;">
+                Optimizar Ruta
+                <label class="switch mt-n1" style="vertical-align: middle;">
+                  <input type="checkbox" class="success" id="optimize">
+                  <span class="slider round " style="display: inline-block;vertical-align: middle;"></span>
+                </label></li>
             </div>
           </div>
           <input type="button" class="btn btn-warning btn-block" value="Agregar punto" id="add" />
           <input type="submit" value="Calcular ruta" class="btn btn-info btn-block"
             onclick="calculateAndDisplayRoute()"></input>
-          <div class="container mt-5 mb-5">
+          <div class="container mt-5 mb-5 text-white">
             <div class="row">
               <div class="col-md-6 offset-md-3">
                 <ul class="timeline float-left" id="myList"></ul>
               </div>
-              <div id="total" data-value="0">
 
+            </div>
+            <div id="container" class="text-center">
+              <div id="total" data-value="0" class="col-md-6 offset-md-3">
+              </div>
+              <div id="distance" data-value="0" class="col-md-6 offset-md-3">
               </div>
             </div>
           </div>
@@ -98,105 +64,18 @@
       </div>
     </div>
   </div>
+  <footer id="footer" class=" footer-1 text-white mt-3" style="background-color: #2c3e50;">
+    <div class="footer-copyright">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <p>TUSI Investigación Operativa © 2020. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
-<script>
-  function initMap() {
-    map = new google.maps.Map(document.getElementById("map"), {
-      center: {
-        lat: -38.00042,
-        lng: -57.5562
-      },
-      zoom: 12,
-    });
-  }
-
-  function secondsToString(seconds) {
-    var hour = Math.floor(seconds / 3600);
-    hour = (hour < 10) ? '0' + hour : hour;
-    var minute = Math.floor((seconds / 60) % 60);
-    minute = (minute < 10) ? '0' + minute : minute;
-    return hour + ':' + minute;
-  }
-  let totalTime = 0
-  let totalDistance = 0
-  let routes = null
-  function calculateAndDisplayRoute() {
-    let menu = document.getElementById('myList');
-    while (menu.firstChild) {
-      menu.removeChild(menu.firstChild);
-    }
-    map = new google.maps.Map(document.getElementById("map"), {
-      center: {
-        lat: -38.00042,
-        lng: -57.5562
-      },
-      zoom: 12,
-    });
-    directionsService = new google.maps.DirectionsService,
-      directionsDisplay = new google.maps.DirectionsRenderer({
-        map: map
-      });
-    var pointa = document.getElementById("puntoa").value;
-    var pointb = document.getElementById("puntob").value;
-    var optimize = document.getElementById("optimize").checked;
-    var inputFormDiv = document.getElementById('botonesdinamicos');
-    var divForminput = inputFormDiv.getElementsByTagName('div');
-    var count = inputFormDiv.getElementsByTagName('div').length;
-    var waypointsinput = [];
-    for (var i = 1; i <= count; i++) {
-      var obj = {
-        'location': document.getElementById('aux' + i).value
-      }
-      waypointsinput.push(obj);
-    }
-    directionsService.route({
-      origin: pointa,
-      optimizeWaypoints: optimize,
-      destination: pointb,
-      travelMode: google.maps.TravelMode.DRIVING,
-      waypoints: waypointsinput
-
-    },
-      function (response, status) {
-        if (status == google.maps.DirectionsStatus.OK) {
-          directionsDisplay.setDirections(response);
-          routes = response.routes
-          for (var i = 0; i <= response.routes[0].legs.length; i++) {
-            console.log(response.routes[0].legs[i].duration, response.routes[0].legs[i].distance)
-            totalTime = totalTime + response.routes[0].legs[i].duration.value
-            //console.log("//////", response.routes[0].legs[i].duration.value)
-            var node = document.createElement("LI");
-            var nodeP1 = document.createElement("P");
-            var nodeP2 = document.createElement("P");
-            var nodeP3 = document.createElement("P");
-
-            var textnode = document.createTextNode("Desde : " + response.routes[0].legs[i].start_address);
-            var textnode1 = document.createTextNode("Hasta : " + response.routes[0].legs[i].end_address);
-            var textnode2 = document.createTextNode("\nDistancia : " + response.routes[0].legs[i].distance.text + "\n Duracion : " + response.routes[0].legs[i].duration.text);
-            nodeP1.appendChild(textnode);
-            nodeP2.appendChild(textnode1);
-            nodeP3.appendChild(textnode2);
-
-            node.appendChild(nodeP1)
-            node.appendChild(nodeP2)
-            node.appendChild(nodeP3)
-            document.getElementById("myList").appendChild(node);
-            var total = document.getElementById("total");
-            total.setAttribute("data-value", parseInt(total.getAttribute("data-value")) + response.routes[0].legs[i].duration.value)
-            var textTotalNode = document.createTextNode(secondsToString(parseInt(total.getAttribute("data-value"))));
-            total.appendChild(textTotalNode)
-          }
-        } else {
-          window.alert('Directions request failed due to ' + status);
-        }
-      });
-  }
-  let totalDiv = document.getElementById("total")
-  var textTotalNode = document.createTextNode(parseInt(totalDiv.getAttribute("data-value")));
-  totalDiv.appendChild(textnode)
-
-  initMap();
-</script>
 <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
   crossorigin="anonymous"></script>
 <script src="logic.js"></script>
