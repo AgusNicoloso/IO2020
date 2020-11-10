@@ -47,6 +47,8 @@ function secondsToString(seconds) {
 let routes = null
 function calculateAndDisplayRoute() {
   let menu = document.getElementById('myList');
+  document.getElementById("total").setAttribute('data-value', '0')
+  document.getElementById("distance").setAttribute('data-value', '0')
   while (menu.firstChild) {
     menu.removeChild(menu.firstChild);
   }
